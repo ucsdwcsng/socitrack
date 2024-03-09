@@ -707,6 +707,11 @@ static void rx_callback(const dwt_cb_data_t *rxData)
 {
    // Retrieve timestamp, packet length, and packet bytes, and ensure that no errors were encountered
    uint32_t reception_callback_time = timer_value_us(_scheduler_timer) + 298;    // Magic number based on how long it takes to verify received packet
+   double rssi = dw1000_get_received_signal_strength_db();
+   // Debug rssi value
+   debug_msg("RSSI: ");
+   debug_msg_double(rssi);
+   debug_msg("\n");
    uint64_t dw_timestamp_raw = dw1000_readrxtimestamp();
    uint32_t dw_timestamp_non_ranging = (uint32_t)((dw_timestamp_raw - dw1000_get_rx_delay(0, 0)) >> 8);
    if (rxData->datalength > MSG_MAX_PACKET_LENGTH)
