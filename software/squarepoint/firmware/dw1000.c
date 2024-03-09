@@ -37,7 +37,10 @@ const uint8_t pgDelay[DW1000_NUM_CHANNELS] = { 0x0, 0xc9, 0xc2, 0xc5, 0x95, 0xc0
 
 //NOTE: THIS IS DEPENDENT ON BAUDRATE
 // Max power: 0x1F1F1F1FUL
-const uint32_t txPower_smartDisabled[DW1000_NUM_CHANNELS] = { 0x0, 0x67676767UL, 0x67676767UL, 0x8B8B8B8BUL, 0x9A9A9A9AUL, 0x85858585UL, 0x0, 0xD1D1D1D1UL };
+// TODO: Modify 1, 3, 5 from ranging.c to different power to c0 for power
+const uint8_t gain_delta = 0;
+const uint32_t tx_power[3] = { 0x67676767UL, 0x8B8B8B8BUL, 0x85858585UL };
+const uint32_t txPower_smartDisabled[DW1000_NUM_CHANNELS] = { 0x0, tx_power[0], 0x67676767UL, tx_power[1], 0x9A9A9A9AUL, tx_power[2], 0x0, 0xD1D1D1D1UL };
 
 #ifndef DW1000_MAXIMIZE_TX_POWER
 const uint32_t txPower_smartEnabled[DW1000_NUM_CHANNELS] = { 0x0, 0x07274767UL, 0x07274767UL, 0x2B4B6B8BUL, 0x3A5A7A9AUL, 0x25456585UL, 0x0, 0x5171B1D1UL };
@@ -941,7 +944,8 @@ double dw1000_get_received_signal_strength_db(void)
 {
    dwt_rxdiag_t diag;
    dwt_readdiagnostics(&diag);
-   return (10 * log10((diag.maxGrowthCIR * 131072.0) / (diag.rxPreamCount * diag.rxPreamCount))) - ((_dw1000_config.prf == DWT_PRF_16M) ? 113.77 : 121.74);
+   double test = log10((diag.maxGrowthCIR * 131072.0) / (diag.rxPreamCount * diag.rxPreamCount));
+   return (10 * test) - ((_dw1000_config.prf == DWT_PRF_16M) ? 113.77 : 121.74);
 }
 
 // Called to go get information on the current status of the DW

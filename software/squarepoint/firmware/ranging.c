@@ -205,6 +205,7 @@ uint8_t perform_ranging(uint8_t *ids_and_ranges, PROTOCOL_EUI_TYPE *expected_dev
             memcpy(ids_and_ranges + output_buffer_index, &response->responder_eui, PROTOCOL_EUI_SIZE);
             output_buffer_index += PROTOCOL_EUI_SIZE;
             memcpy(ids_and_ranges + output_buffer_index, &range_millimeters, sizeof(range_millimeters));
+            // TODO: ADD RSSI for all broadcasts here!
             output_buffer_index += sizeof(range_millimeters);
             ++num_successful_rangings;
             ++_state.num_ranges;

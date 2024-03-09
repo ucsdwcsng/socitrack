@@ -6,7 +6,7 @@
 import asyncio
 import functools
 import struct
-import sys
+import os, sys
 from bleak import BleakClient, BleakScanner
 from datetime import datetime
 
@@ -36,7 +36,9 @@ def data_received_callback(data_file, sender_characteristic, data):
   for i in range(num_ranges):
     to_eui, range_mm = struct.unpack('<BI', data[(2+i*5):(2+(i+1)*5)])
     print('\tDevice {} with millimeter range {}'.format(hex(to_eui)[2:], range_mm))
-    data_file.write('{}\t{}    {}    {}\n'.format(timestamp, hex(from_eui)[2:], hex(to_eui)[2:], range_mm))
+    # Get OS timestamp in seconds
+    osTime = datetime.now().timestamp()
+    data_file.write('{}\t{}\t{}    {}    {}\n'.format(osTime, timestamp, hex(from_eui)[2:], hex(to_eui)[2:], range_mm))
 
 
 # MAIN RANGE LOGGING FUNCTION -----------------------------------------------------------------------------------------
@@ -65,7 +67,7 @@ async def log_ranges():
             if characteristic.uuid == TOTTAG_DATA_UUID:
               try:
                 file = open(filename_base + client.address.replace(':', '') + '.data', 'w')
-                file.write('Timestamp\tFrom  To    Distance (mm)\n')
+                file.write('UNIX\tTimestamp\tFrom  To    Distance (mm)\n')
               except Exception as e:
                 print(e)
                 print('ERROR: Unable to create a ranging data log file')

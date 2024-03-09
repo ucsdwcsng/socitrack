@@ -24,7 +24,7 @@
 #define DW1000_PREAMBLE_LENGTH        DWT_PLEN_128
 #define DW1000_PAC_SIZE               DWT_PAC8
 #define DW1000_DATA_RATE              DWT_BR_6M8
-#define DW1000_SMART_PWR_EN           1
+#define DW1000_SMART_PWR_EN           0 // Changed to 0 to disable smart power
 #define DW1000_SFD_TO                 (128 + 1 + 8 - 8) // (Preamble length + 1 + SFD length - PAC size)
 #define RANGING_BROADCASTS_PERIOD_US  2000
 #define RANGING_CONTENTION_PADDING_US 2000
@@ -54,7 +54,8 @@
 //#define BYPASS_HOST_INTERFACE TRUE
 
 // Adjust Tx parameters
-#define DW1000_MAXIMIZE_TX_POWER TRUE
+// TODO: Set to False
+#define DW1000_MAXIMIZE_TX_POWER FALSE
 
 // Re-transmit received Glossy flood packets
 #define ENABLE_GLOSSY_FLOOD_ON_RECEPTION FALSE

@@ -251,6 +251,7 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
          const uint8_t packet_overhead = 2 + SQUAREPOINT_EUI_LEN, num_ranges = data[1];
          nrfx_atomic_flag_set(&_app_flags.squarepoint_running);
          uint32_t range = 0, epoch = 0;
+         uint64_t rssi = 0;
 
          // Output the received ranging data
          for (uint8_t i = 0; i < num_ranges; ++i)
@@ -258,7 +259,7 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
             {
                uint8_t offset = packet_overhead + (i * APP_LOG_RANGE_LENGTH);
                memcpy(&range, data + offset + SQUAREPOINT_EUI_LEN, sizeof(range));
-               log_printf("INFO:     Device %02X with millimeter range %lu\n", data[offset + 0], range);
+               log_printf("INFO:     Device %02X with millimeter range %lu and RSSI %llu\n", data[offset + 0], range, rssi);
             }
 
          // Copy the ranging data to the ranging buffer
