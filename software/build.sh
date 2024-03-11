@@ -11,8 +11,6 @@ else
     echo "Flashing STM..."
 fi
 
-
-
 cd squarepoint
 #make clean
 make -j4 flash ID=$MAC$MAC_ID

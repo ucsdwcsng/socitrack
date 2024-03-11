@@ -52,20 +52,26 @@ bool handle_incoming_request(uint64_t dw_rx_timestamp, PROTOCOL_EUI_TYPE source_
    uint8_t antenna_index = subsequence_number_to_antenna(FALSE, subsequence_number);
    
    double rssi = dw1000_get_received_signal_strength_db();
-   // Debug rssi value
-   debug_msg("RSSI: ");
-   debug_msg_double(rssi);
-   debug_msg(" dBm");
-   debug_msg("\n");
+   // // Debug rssi value
+   // debug_msg("RSSI: ");
+   // debug_msg_double(rssi);
+   // debug_msg(" dBm");
+   // debug_msg(" Subsequence: ");
+   // debug_msg_int(subsequence_number);
+   // debug_msg("\n");
+
+   _response_packet.requests[idx].rssis[subsequence_number] = rssi;
 
    // Update the response packet based on whether or not this is a request from a new device
    if (new_device)
    {
       // Set all relevant response packet fields for this incoming request
       memset(_response_packet.requests[idx].TOAs, 0, sizeof(_response_packet.requests[idx].TOAs));
+      memset(_response_packet.requests[idx].rssis, 0, sizeof(_response_packet.requests[idx].rssis));
       _response_packet.requests[idx].requester_eui = source_eui;
       _response_packet.requests[idx].first_rxd_toa = dw_rx_timestamp;
       _response_packet.requests[idx].first_rxd_idx = subsequence_number;
+      _response_packet.requests[idx].rssis[subsequence_number] = rssi;
       _response_packet.requests[idx].TOAs[subsequence_number] = dw_rx_timestamp & 0xFFFF;
 
       // Keep track of how many packets were received on each antenna

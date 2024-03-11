@@ -71,6 +71,9 @@ void add_ranging_response(PROTOCOL_EUI_TYPE this_eui, uint64_t dw_raw_timestamp,
          memcpy(_state.responses[_state.num_responses].TOAs, response->requests[i].TOAs, sizeof(response->requests[i].TOAs));
          _state.responses[_state.num_responses].response_tx_timestamp = response->dw_time_sent;
          _state.responses[_state.num_responses].response_rx_timestamp = dw_raw_timestamp - dw1000_get_rx_delay(RANGING_RESPONSE_CHANNEL_INDEX, RANGING_RESPONSE_ANTENNA_INDEX);
+
+         memcpy(_state.responses[_state.num_responses].rssis, response->requests[i].rssis, sizeof(response->requests[i].rssis));
+
          ++_state.num_responses;
          break;
       }
@@ -205,8 +208,12 @@ uint8_t perform_ranging(uint8_t *ids_and_ranges, PROTOCOL_EUI_TYPE *expected_dev
             memcpy(ids_and_ranges + output_buffer_index, &response->responder_eui, PROTOCOL_EUI_SIZE);
             output_buffer_index += PROTOCOL_EUI_SIZE;
             memcpy(ids_and_ranges + output_buffer_index, &range_millimeters, sizeof(range_millimeters));
-            // TODO: ADD RSSI for all broadcasts here!
             output_buffer_index += sizeof(range_millimeters);
+            // TODO: ADD RSSI for all broadcasts here!
+
+            memcpy(ids_and_ranges + output_buffer_index, response->rssis, sizeof(response->rssis));
+            output_buffer_index += sizeof(response->rssis);
+
             ++num_successful_rangings;
             ++_state.num_ranges;
          }
