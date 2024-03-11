@@ -50,6 +50,13 @@ bool handle_incoming_request(uint64_t dw_rx_timestamp, PROTOCOL_EUI_TYPE source_
    // Get an index to the next/current slot in the response packet as well as the reception antenna
    uint8_t idx = _response_packet.requests_count;
    uint8_t antenna_index = subsequence_number_to_antenna(FALSE, subsequence_number);
+   
+   double rssi = dw1000_get_received_signal_strength_db();
+   // Debug rssi value
+   debug_msg("RSSI: ");
+   debug_msg_double(rssi);
+   debug_msg(" dBm");
+   debug_msg("\n");
 
    // Update the response packet based on whether or not this is a request from a new device
    if (new_device)

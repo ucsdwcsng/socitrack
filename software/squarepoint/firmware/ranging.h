@@ -24,6 +24,7 @@ typedef struct
    uint8_t last_rxd_idx;
    uint64_t last_rxd_toa;
    uint16_t TOAs[NUM_RANGING_BROADCASTS];
+   double rssis[NUM_RANGING_BROADCASTS];
 } ranging_info_t;
 
 typedef struct
