@@ -18,7 +18,7 @@
 #define SCHEDULE_XMIT_TIME_OFFSET_US     2000
 #define SCHEDULE_PACKET_PAYLOAD_LENGTH   (13 + (2*PROTOCOL_EUI_SIZE))           // 5 * uint8_t + 2 * uint32_t + 2 * EUI
 #define RESULTS_PACKET_PAYLOAD_LENGTH    (2 + PROTOCOL_EUI_SIZE)                // 2 * uint8_t + EUI
-#define PACKET_SINGLE_RESULT_LENGTH      (PROTOCOL_EUI_SIZE + sizeof(int32_t) + 30 * sizeof(double))  // EUI + Range + RSSI
+#define PACKET_SINGLE_RESULT_LENGTH      (PROTOCOL_EUI_SIZE + sizeof(int32_t))  // EUI + Range
 #define RANGING_REQUEST_TIME_OFFSET_US   2000
 #define RANGING_RESPONSE_TIME_OFFSET_US  2000
 #define SECONDS_PER_YEAR                 60*60*24*365
