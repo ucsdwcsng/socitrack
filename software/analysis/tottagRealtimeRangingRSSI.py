@@ -50,7 +50,7 @@ def data_received_callback(data_file, sender_characteristic, data):
     rssi_fmt = '<' + 'f'*cur_tags[0]['num_ranges']*30
     rssi_struct = struct.unpack(rssi_fmt, data[1:121])
     # data_file.write('{}\t{}\t{}\t{}\t{}'.format(osTime, timestamp, hex(from_eui)[2:], hex(to_eui)[2:], range_mm))
-    data_file.write('{}\t{}\t{}\t{}'.format(cur_tags[0]['ostime'], cur_tags[0]['timestamp'], hex(cur_tags[0]['from'])[2:], hex(cur_tags[0]['to'])[2:]))
+    data_file.write('{}\t{}\t{}\t{}\t{}'.format(cur_tags[0]['ostime'], cur_tags[0]['timestamp'], hex(cur_tags[0]['from'])[2:], hex(cur_tags[0]['to'])[2:], cur_tags[0]['range']))
     for i in range(30):
       # Write to file, truncate to 4 decimal places
       data_file.write('\t{}'.format(round(rssi_struct[i], 4)))
@@ -86,6 +86,9 @@ async def log_ranges():
               try:
                 file = open(filename_base + client.address.replace(':', '') + '.data', 'w')
                 file.write('UNIX\tTimestamp\tFrom\tTo\tDistance (mm)\n')
+                for i in range(30):
+                  file.write('\tRSSI_{}'.format(i))
+                file.write('\n')
               except Exception as e:
                 print(e)
                 print('ERROR: Unable to create a ranging data log file')
