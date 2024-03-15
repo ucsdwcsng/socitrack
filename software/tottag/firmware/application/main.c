@@ -23,6 +23,9 @@ static bool _charger_plugged_in = false;
 static uint8_t _range_buffer[APP_BLE_MAX_BUFFER_LENGTH] = { 0 };
 static volatile uint16_t _range_buffer_length = 0;
 
+static uint8_t _rssi_buffer[APP_BLE_MAX_BUFFER_LENGTH] = { 0 };
+static volatile uint16_t _rssi_buffer_length = 0;
+
 
 // Helper functions ----------------------------------------------------------------------------------------------------
 
@@ -252,7 +255,9 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
          const uint8_t packet_overhead = 2 + SQUAREPOINT_EUI_LEN, num_ranges = data[1];
          nrfx_atomic_flag_set(&_app_flags.squarepoint_running);
          uint32_t range = 0, epoch = 0;
-         uint64_t rssi = 0;
+         
+         ranging_rssi_t rssi;
+         memcpy(&rssi, data + packet_overhead + (num_ranges * APP_LOG_RANGE_LENGTH) + sizeof(epoch), sizeof(rssi));
 
          // Output the received ranging data
          for (uint8_t i = 0; i < num_ranges; ++i)
@@ -260,12 +265,25 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
             {
                uint8_t offset = packet_overhead + (i * APP_LOG_RANGE_LENGTH);
                memcpy(&range, data + offset + SQUAREPOINT_EUI_LEN, sizeof(range));
-               log_printf("INFO:     Device %02X with millimeter range %lu and RSSI %llu\n", data[offset + 0], range, rssi);
+               log_printf("INFO:     Device %02X with millimeter range %lu\n", data[offset + 0], range);
+
+               log_printf("RSSI: ");
+               for (int rssi_cur = 0; rssi_cur < 30; rssi_cur++){
+                  log_printf("%f, ", rssi.rssis[i][rssi_cur]);
+               }
+               log_printf("\n");
             }
 
          // Copy the ranging data to the ranging buffer
          _range_buffer_length = (uint16_t)MIN(len - 1, APP_BLE_MAX_BUFFER_LENGTH);
-         memcpy(_range_buffer, data + 1, _range_buffer_length);
+         _range_buffer_length = (uint16_t)50;
+         memcpy(_range_buffer + 1, data + 1, _range_buffer_length);
+         _range_buffer[0] = (char) 14;
+
+         // Make new buffer for RSSI specifically
+         _rssi_buffer_length = (uint16_t)MIN(len - 1, APP_BLE_MAX_BUFFER_LENGTH);
+         memcpy(_rssi_buffer + 1, &rssi.rssis, 2 * 30 * sizeof(float));
+         _rssi_buffer[0] = (char) 15;
 
          // Update the application epoch
          memcpy(&epoch, data + packet_overhead + (num_ranges * APP_LOG_RANGE_LENGTH), sizeof(epoch));
@@ -288,8 +306,9 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
          else
          {
             // Store the received ranges to the SD card
-            sd_card_log_ranges(_range_buffer, _range_buffer_length);
+            sd_card_log_ranges(_range_buffer, _range_buffer_length, rssi);
             ble_update_ranging_data(_range_buffer, _range_buffer_length);
+            ble_update_ranging_data(_rssi_buffer, _rssi_buffer_length);
          }
 
          // Reset the SquarePoint communications timeout counter

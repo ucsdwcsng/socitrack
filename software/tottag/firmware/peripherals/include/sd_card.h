@@ -19,7 +19,7 @@ bool sd_card_open_file_for_reading(const char *file_name);
 void sd_card_close_reading_file(void);
 uint32_t sd_card_get_reading_file_size_bytes(void);
 uint32_t sd_card_read_reading_file(uint8_t *data_buffer, uint32_t buffer_length);
-void sd_card_log_ranges(const uint8_t *data, uint16_t length);
+void sd_card_log_ranges(const uint8_t *data, uint16_t length, ranging_rssi_t rssi);
 void sd_card_log_updated_epoch(uint32_t epoch);
 void sd_card_log_battery(uint16_t battery_millivolts, uint32_t current_time, bool flush);
 void sd_card_log_charging(bool plugged_in, bool is_charging, uint32_t current_time, bool flush);

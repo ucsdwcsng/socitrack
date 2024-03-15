@@ -11,6 +11,10 @@
 #include "nrfx_atomic.h"
 #include "nrfx_gpiote.h"
 
+typedef struct __attribute__ ((__packed__))
+{
+   float rssis[20][30];
+} ranging_rssi_t;
 
 // User configurable debug definitions ---------------------------------------------------------------------------------
 
