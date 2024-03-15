@@ -12,8 +12,19 @@
 
 static response_state_t _state;
 static response_packet_t _response_packet;
+static ranging_rssi_t _rssi;
 
 // Public functions ----------------------------------------------------------------------------------------------------
+
+void reset_rssis(void)
+{
+   memset(_rssi.rssis, 0, sizeof(_rssi.rssis));
+}
+
+ranging_rssi_t* get_rssis(void)
+{
+   return &_rssi;
+}
 
 void initialize_response(uint8_t *src_address)
 {
@@ -52,22 +63,26 @@ bool handle_incoming_request(uint64_t dw_rx_timestamp, PROTOCOL_EUI_TYPE source_
    uint8_t antenna_index = subsequence_number_to_antenna(FALSE, subsequence_number);
    
    double rssi = dw1000_get_received_signal_strength_db();
-   // // Debug rssi value
+
+   // Truncate rssi to match float precision
+   rssi = (int)(rssi * 100000) / 100000.0;
+   _rssi.rssis[idx][subsequence_number] = (float)rssi;
+
+   // Debug rssi value
    // debug_msg("RSSI: ");
    // debug_msg_double(rssi);
    // debug_msg(" dBm");
    // debug_msg(" Subsequence: ");
    // debug_msg_int(subsequence_number);
+   // debug_msg(" Float: ");
+   // debug_msg_float(_rssi.rssis[idx][subsequence_number]);
    // debug_msg("\n");
-
-   _response_packet.requests[idx].rssis[subsequence_number] = rssi;
 
    // Update the response packet based on whether or not this is a request from a new device
    if (new_device)
    {
       // Set all relevant response packet fields for this incoming request
       memset(_response_packet.requests[idx].TOAs, 0, sizeof(_response_packet.requests[idx].TOAs));
-      memset(_response_packet.requests[idx].rssis, 0, sizeof(_response_packet.requests[idx].rssis));
       _response_packet.requests[idx].requester_eui = source_eui;
       _response_packet.requests[idx].first_rxd_toa = dw_rx_timestamp;
       _response_packet.requests[idx].first_rxd_idx = subsequence_number;

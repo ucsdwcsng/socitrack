@@ -49,7 +49,7 @@ static int16_t _scheduled_request_timeslot, _scheduled_response_timeslot, _sched
 
 // Scratch variables ---------------------------------------------------------------------------------------------------
 
-static uint8_t ids_and_ranges[((PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS) * PACKET_SINGLE_RESULT_LENGTH) + 1 + sizeof(_schedule_packet.epoch_time_unix)];
+static uint8_t ids_and_ranges[((PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS) * (PACKET_SINGLE_RESULT_LENGTH + 30 * sizeof(float))) + 1 + sizeof(_schedule_packet.epoch_time_unix)];
 static uint8_t scratch_ranges[((PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS) * PACKET_SINGLE_RESULT_LENGTH) + 1];
 PROTOCOL_EUI_TYPE requester_eui_array[PROTOCOL_MAX_NUM_DEVICES_PER_TYPE];
 PROTOCOL_EUI_TYPE responder_eui_array[PROTOCOL_MAX_NUM_DEVICES_PER_TYPE];
@@ -118,6 +118,7 @@ static void initialize_new_round(void)
    // Reset all global variables to begin a new ranging round
    memset(ids_and_ranges, 0, sizeof(ids_and_ranges));
    memset(scratch_ranges, 0, sizeof(scratch_ranges));
+   reset_rssis();
    _num_ranging_packets_received = _num_successful_ranges = _next_slot_number = 0;
    _previous_ranging_successful = _ranging_successful;
    _ranging_successful = _results_received = FALSE;
@@ -708,13 +709,6 @@ static void rx_callback(const dwt_cb_data_t *rxData)
    // Retrieve timestamp, packet length, and packet bytes, and ensure that no errors were encountered
    uint32_t reception_callback_time = timer_value_us(_scheduler_timer) + 298;    // Magic number based on how long it takes to verify received packet
    
-   // double rssi = dw1000_get_received_signal_strength_db();
-   // // Debug rssi value
-   // debug_msg("RSSI: ");
-   // debug_msg_double(rssi);
-   // debug_msg(" dBm");
-   // debug_msg("\n");
-
    uint64_t dw_timestamp_raw = dw1000_readrxtimestamp();
    uint32_t dw_timestamp_non_ranging = (uint32_t)((dw_timestamp_raw - dw1000_get_rx_delay(0, 0)) >> 8);
    if (rxData->datalength > MSG_MAX_PACKET_LENGTH)
@@ -1093,9 +1087,36 @@ static void perform_scheduled_slot_task(void)
             dw1000_sleep(FALSE);
          ids_and_ranges[0] = scratch_ranges[0];
          memcpy(ids_and_ranges + 1, &_schedule_packet.scheduler_eui, PROTOCOL_EUI_SIZE);
-         memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE, scratch_ranges + 1, scratch_ranges[0] * PACKET_SINGLE_RESULT_LENGTH);
-         memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * PACKET_SINGLE_RESULT_LENGTH), &_schedule_packet.epoch_time_unix, sizeof(_schedule_packet.epoch_time_unix));
-         host_interface_notify_ranges(ids_and_ranges, 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * PACKET_SINGLE_RESULT_LENGTH) + sizeof(_schedule_packet.epoch_time_unix));
+         memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE, scratch_ranges + 1, scratch_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH));
+         memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)), &_schedule_packet.epoch_time_unix, sizeof(_schedule_packet.epoch_time_unix));
+
+         // Get rssi struct
+         ranging_rssi_t* _rssi = get_rssis();
+
+         // Add rssis at end
+         debug_msg("RSSI sent: ");
+         for (int i = 0; i < scratch_ranges[0]; i++) {
+            float * rssi_list = _rssi->rssis[i];
+            for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
+               debug_msg_float(_rssi->rssis[i][j]);
+               debug_msg(", ");
+            }
+            memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)), rssi_list, sizeof(ranging_rssi_t));
+         }
+         debug_msg("\n");
+
+         // Debug rssis within ids_and_ranges
+         debug_msg("RSSI in var: ");
+         for (int i = 0; i < scratch_ranges[0]; i++) {
+            ranging_rssi_t* vals = (ranging_rssi_t*)(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * PACKET_SINGLE_RESULT_LENGTH) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)));
+            for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
+               debug_msg_float(vals->rssis[i][j]);
+               debug_msg(", ");
+            }
+         }
+         debug_msg("\n");
+
+         host_interface_notify_ranges(ids_and_ranges, 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (ids_and_ranges[0] * NUM_RANGING_BROADCASTS * sizeof(double)));
          break;
       case UNSCHEDULED_TIME_PHASE:      // Intentional fallthrough
       default:

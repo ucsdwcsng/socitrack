@@ -120,17 +120,6 @@ void host_interface_notify_ranges(uint8_t *ids_ranges, uint8_t len)
       else
          debug_msg("Unable to calculate!");
       debug_msg("\n");
-
-      // Output RSSI values
-      debug_msg("RSSI: ");
-      for (uint8_t j = 0; j < NUM_RANGING_BROADCASTS; ++j)
-      {
-         debug_msg_double(ids_ranges[offset + PROTOCOL_EUI_SIZE + sizeof(range) + j]);
-         debug_msg(" dBm");
-         debug_msg(", ");
-      }
-
-      debug_msg("\n");
    }
 
    // Wait for the host to complete any pending reads

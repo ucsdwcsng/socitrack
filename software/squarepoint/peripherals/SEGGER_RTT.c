@@ -537,6 +537,74 @@ void debug_msg_uint64(uint64_t i)
 
 }
 
+void debug_msg_float(float f)
+{
+#ifdef DEBUG_OUTPUT_RTT
+   // Limit to 10 digits before the decimal point and 10 digits after the decimal point
+   char msg_float[22] = { 0 };
+
+   if (f == 0)
+   {
+      // Special case: 0
+      msg_float[0] = '0';
+      msg_float[1] = '\0';
+      SEGGER_RTT_WriteString(0, msg_float);
+      return;
+   }
+
+   uint16_t index = 0;
+
+   // Print sign
+   if (f < 0)
+   {
+      msg_float[index] = '-';
+      f = -f;
+      index++;
+   }
+
+   // Print digits before the decimal point
+   uint32_t temp = (uint32_t) f;
+   uint32_t digits = 0;
+
+   while (temp > 0)
+   {
+      digits++;
+      temp = temp / 10;
+   }
+
+   temp = (uint32_t) f;
+   uint32_t i = 1;
+
+   for (; i <= digits; i++)
+   {
+      msg_float[index + digits - i] = (char) ('0' + (temp % 10));
+      temp = temp / 10;
+   }
+
+   index += digits;
+
+   // Print decimal point
+   msg_float[index] = '.';
+   index++;
+
+   // Print digits after the decimal point
+   float decimal = f - (uint32_t) f;
+   for (uint8_t i = 0; i < 10; i++)
+   {
+      decimal *= 10;
+      msg_float[index] = (char) ('0' + (uint32_t) decimal);
+      decimal -= (uint32_t) decimal;
+      index++;
+   }
+
+   // Add string delimiter
+   msg_float[index - 1] = '\0';
+
+   // Print string
+   SEGGER_RTT_WriteString(0, msg_float);
+#endif
+}
+
 void debug_msg_double(double d)
 {
 #ifdef DEBUG_OUTPUT_RTT

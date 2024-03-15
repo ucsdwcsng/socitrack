@@ -248,6 +248,7 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
       {
          // Display the callback reason
          log_printf("RANGES, included number of ranges: %i\n", data[1]);
+         log_printf("Length of data: %lu\n", len);
          const uint8_t packet_overhead = 2 + SQUAREPOINT_EUI_LEN, num_ranges = data[1];
          nrfx_atomic_flag_set(&_app_flags.squarepoint_running);
          uint32_t range = 0, epoch = 0;

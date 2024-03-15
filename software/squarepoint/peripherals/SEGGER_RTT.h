@@ -83,6 +83,7 @@ void debug_msg(const char *s);
 void debug_msg_int(int i);
 void debug_msg_uint(uint32_t i);
 void debug_msg_uint64(uint64_t i);
+void debug_msg_float(float f);
 void debug_msg_double(double d);
 void debug_msg_hex(int i);
 void debug_msg_eui(PROTOCOL_EUI_TYPE eui);

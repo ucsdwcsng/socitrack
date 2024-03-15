@@ -15,6 +15,11 @@
 
 typedef struct __attribute__ ((__packed__))
 {
+   float rssis[PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS][NUM_RANGING_BROADCASTS];
+} ranging_rssi_t;
+
+typedef struct __attribute__ ((__packed__))
+{
    PROTOCOL_EUI_TYPE requester_eui;
    uint8_t first_rxd_idx;
    uint64_t first_rxd_toa;
@@ -45,6 +50,8 @@ typedef struct
 
 // Public functions ----------------------------------------------------------------------------------------------------
 
+void reset_rssis(void);
+ranging_rssi_t* get_rssis(void);
 void initialize_response(uint8_t *src_address);
 void reset_response_phase(void);
 uint8_t prepare_for_next_subsequence(void);
