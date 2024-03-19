@@ -1094,27 +1094,29 @@ static void perform_scheduled_slot_task(void)
          ranging_rssi_t* _rssi = get_rssis();
 
          // Add rssis at end
-         debug_msg("RSSI sent: ");
-         for (int i = 0; i < scratch_ranges[0]; i++) {
-            float * rssi_list = _rssi->rssis[i];
-            for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
-               debug_msg_float(_rssi->rssis[i][j]);
-               debug_msg(", ");
+         if (ids_and_ranges[0] > 0) {
+            // debug_msg("RSSI sent: ");
+            for (int i = 0; i < scratch_ranges[0]; i++) {
+               float * rssi_list = _rssi->rssis[i];
+               // for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
+               //    debug_msg_float(_rssi->rssis[i][j]);
+               //    debug_msg(", ");
+               // }
+               memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)), rssi_list, sizeof(ranging_rssi_t));
             }
-            memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)), rssi_list, sizeof(ranging_rssi_t));
+            // debug_msg("\n");
          }
-         debug_msg("\n");
-
-         // Debug rssis within ids_and_ranges
-         debug_msg("RSSI in var: ");
-         for (int i = 0; i < scratch_ranges[0]; i++) {
-            ranging_rssi_t* vals = (ranging_rssi_t*)(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * PACKET_SINGLE_RESULT_LENGTH) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)));
-            for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
-               debug_msg_float(vals->rssis[i][j]);
-               debug_msg(", ");
-            }
-         }
-         debug_msg("\n");
+         
+         // // Debug rssis within ids_and_ranges
+         // debug_msg("RSSI in var: ");
+         // for (int i = 0; i < scratch_ranges[0]; i++) {
+         //    ranging_rssi_t* vals = (ranging_rssi_t*)(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * PACKET_SINGLE_RESULT_LENGTH) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)));
+         //    for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
+         //       debug_msg_float(vals->rssis[i][j]);
+         //       debug_msg(", ");
+         //    }
+         // }
+         // debug_msg("\n");
 
          host_interface_notify_ranges(ids_and_ranges, 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (ids_and_ranges[0] * NUM_RANGING_BROADCASTS * sizeof(double)));
          break;
