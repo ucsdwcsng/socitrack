@@ -452,13 +452,13 @@ void sd_card_log_ranges(const uint8_t *data, uint16_t length, ranging_rssi_t rss
       memcpy(&range, data + offset_data + SQUAREPOINT_EUI_LEN, sizeof(range));
       if (range > APP_LOG_OUT_OF_RANGE_VALUE)
          range = APP_LOG_OUT_OF_RANGE_VALUE;
-      sprintf(_log_ranges_buf + offset_buf + 29, "%06lu\t", range);
+      sprintf(_log_ranges_buf + offset_buf + 29, "%06lu\n", range);
 
-      // Print RSSIs
-      for (int rssi_cur = 0; rssi_cur < 30; rssi_cur++){
-         sprintf(_log_ranges_buf + offset_buf + 35 + (rssi_cur * 4), "%06f", rssi.rssis[i][rssi_cur]);
-      }
-      sprintf(_log_ranges_buf + offset_buf + 35 + (30 * 4), "\n");
+      // // Print RSSIs
+      // for (int rssi_cur = 0; rssi_cur < 30; rssi_cur++){
+      //    sprintf(_log_ranges_buf + offset_buf + 35 + (rssi_cur * 4), "%06f", rssi.rssis[i][rssi_cur]);
+      // }
+      // sprintf(_log_ranges_buf + offset_buf + 35 + (30 * 4), "\n");
 
       // Update the data and buffer offsets
       offset_data += APP_LOG_RANGE_LENGTH;
