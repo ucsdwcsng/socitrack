@@ -46,11 +46,12 @@ def data_received_callback(data_file, addr, sender_characteristic, data):
       osTime = int(datetime.now().timestamp())
       cur_tags[addr]=({'to': to_eui, 'from': from_eui, 'range': range_mm, 'timestamp': timestamp, 'ostime': osTime, 'num_ranges': num_ranges})
   elif identifier == 15:
-    if len(cur_tags) == 0 or len(data[1:]) < 120:
+    if len(cur_tags) == 0 or len(data[1:]) < 4:
+      # Malformed message or nothing sent
       return
     # Get RSSI data entries starting from 2nd byte as list of floats
-    rssi_fmt = '<' + 'f'*cur_tags[addr]['num_ranges']*30
-    rssi_struct = struct.unpack(rssi_fmt, data[1:121])
+    rssi_fmt = '<' + 'f'*cur_tags[addr]['num_ranges']
+    rssi_struct = struct.unpack(rssi_fmt, data[1:(4 * cur_tags[addr]['num_ranges']) + 1])
     # data_file.write('{}\t{}\t{}\t{}\t{}'.format(osTime, timestamp, hex(from_eui)[2:], hex(to_eui)[2:], range_mm))
     data_file.write('{}\t{}\t{}\t{}\t{}'.format(cur_tags[addr]['ostime'], cur_tags[addr]['timestamp'], hex(cur_tags[addr]['from'])[2:], hex(cur_tags[addr]['to'])[2:], cur_tags[addr]['range']))
     for i in range(NUM_RSSI_ENTRIES):
@@ -87,7 +88,7 @@ async def log_ranges():
             if characteristic.uuid == TOTTAG_DATA_UUID:
               try:
                 file = open(filename_base + client.address.replace(':', '') + '.data', 'w')
-                file.write('UNIX\tTimestamp\tFrom\tTo\tDistance (mm)\n')
+                file.write('UNIX\tTimestamp\tFrom\tTo\tDistance (mm)\t')
                 for i in range(NUM_RSSI_ENTRIES):
                   file.write('\tRSSI_{}'.format(i))
                 file.write('\n')

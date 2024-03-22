@@ -86,7 +86,6 @@ bool handle_incoming_request(uint64_t dw_rx_timestamp, PROTOCOL_EUI_TYPE source_
       _response_packet.requests[idx].requester_eui = source_eui;
       _response_packet.requests[idx].first_rxd_toa = dw_rx_timestamp;
       _response_packet.requests[idx].first_rxd_idx = subsequence_number;
-      _response_packet.requests[idx].rssis[subsequence_number] = rssi;
       _response_packet.requests[idx].TOAs[subsequence_number] = dw_rx_timestamp & 0xFFFF;
 
       // Keep track of how many packets were received on each antenna

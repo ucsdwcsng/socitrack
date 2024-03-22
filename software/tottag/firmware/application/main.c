@@ -251,7 +251,7 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
       {
          // Display the callback reason
          log_printf("RANGES, included number of ranges: %i\n", data[1]);
-         log_printf("Length of data: %lu\n", len);
+         // log_printf("Length of data: %lu\n", len);
          const uint8_t packet_overhead = 2 + SQUAREPOINT_EUI_LEN, num_ranges = data[1];
          nrfx_atomic_flag_set(&_app_flags.squarepoint_running);
          uint32_t range = 0, epoch = 0;
@@ -267,11 +267,11 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
                memcpy(&range, data + offset + SQUAREPOINT_EUI_LEN, sizeof(range));
                log_printf("INFO:     Device %02X with millimeter range %lu\n", data[offset + 0], range);
 
-               log_printf("RSSI: ");
-               for (int rssi_cur = 0; rssi_cur < 30; rssi_cur++){
-                  log_printf("%f, ", rssi.rssis[i][rssi_cur]);
-               }
-               log_printf("\n");
+               // log_printf("RSSI: ");
+               // for (int rssi_cur = 0; rssi_cur < 30; rssi_cur++){
+               //    log_printf("%f, ", rssi.rssis[i][rssi_cur]);
+               // }
+               // log_printf("\n");
             }
 
          // Copy the ranging data to the ranging buffer
@@ -282,7 +282,10 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
 
          // Make new buffer for RSSI specifically
          _rssi_buffer_length = (uint16_t)MIN(len - 1, APP_BLE_MAX_BUFFER_LENGTH);
-         memcpy(_rssi_buffer + 1, &rssi.rssis, 2 * 30 * sizeof(float));
+         // for ( int i = 0; i < num_ranges; i++ ) {
+         //    memcpy(_rssi_buffer + 1 + i * sizeof(float), &rssi.rssis[i][0], sizeof(float)); // Transmit 1 float per device
+         // }
+         memcpy(_rssi_buffer + 1, &rssi.rssis, sizeof(float)); // Transmit 1 float
          _rssi_buffer[0] = (char) 15;
 
          // Update the application epoch
