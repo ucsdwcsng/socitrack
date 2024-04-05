@@ -23,4 +23,6 @@ read temp
 cd ../tottag
 # make clean
 make -j8 BOARD_REV=H DEBUG_MODE=1 FORCE_RTC_RESET=1 flash ID=$MAC$MAC_ID
+# Give time for RTC to reset
+sleep 5
 make -j8 BOARD_REV=H DEBUG_MODE=1 flash ID=$MAC$MAC_ID
