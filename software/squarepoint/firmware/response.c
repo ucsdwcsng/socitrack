@@ -62,11 +62,13 @@ bool handle_incoming_request(uint64_t dw_rx_timestamp, PROTOCOL_EUI_TYPE source_
    uint8_t idx = _response_packet.requests_count;
    uint8_t antenna_index = subsequence_number_to_antenna(FALSE, subsequence_number);
    
-   double rssi = dw1000_get_received_signal_strength_db();
+   if ( subsequence_number < 2 ) {
+      double rssi = dw1000_get_received_signal_strength_db();
 
-   // Truncate rssi to match float precision
-   rssi = (int)(rssi * 100000) / 100000.0;
-   _rssi.rssis[idx][subsequence_number] = (float)rssi;
+      // Truncate rssi to match float precision
+      rssi = (int)(rssi * 100000) / 100000.0;
+      _rssi.rssis[idx][subsequence_number] = (float)rssi;
+   }
 
    // Debug rssi value
    // debug_msg("RSSI: ");

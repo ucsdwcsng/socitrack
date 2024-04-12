@@ -49,7 +49,7 @@ static int16_t _scheduled_request_timeslot, _scheduled_response_timeslot, _sched
 
 // Scratch variables ---------------------------------------------------------------------------------------------------
 
-static uint8_t ids_and_ranges[((PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS) * (PACKET_SINGLE_RESULT_LENGTH + 30 * sizeof(float))) + 1 + sizeof(_schedule_packet.epoch_time_unix)];
+static uint8_t ids_and_ranges[((PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS) * PACKET_SINGLE_RESULT_LENGTH) + 1 + sizeof(_schedule_packet.epoch_time_unix) + sizeof(ranging_rssi_t)];
 static uint8_t scratch_ranges[((PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS) * PACKET_SINGLE_RESULT_LENGTH) + 1];
 PROTOCOL_EUI_TYPE requester_eui_array[PROTOCOL_MAX_NUM_DEVICES_PER_TYPE];
 PROTOCOL_EUI_TYPE responder_eui_array[PROTOCOL_MAX_NUM_DEVICES_PER_TYPE];
@@ -1118,7 +1118,7 @@ static void perform_scheduled_slot_task(void)
          // }
          // debug_msg("\n");
 
-         host_interface_notify_ranges(ids_and_ranges, 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (ids_and_ranges[0] * NUM_RANGING_BROADCASTS * sizeof(double)));
+         host_interface_notify_ranges(ids_and_ranges, 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + sizeof(ranging_rssi_t));
          break;
       case UNSCHEDULED_TIME_PHASE:      // Intentional fallthrough
       default:

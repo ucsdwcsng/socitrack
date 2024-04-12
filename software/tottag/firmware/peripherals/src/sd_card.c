@@ -409,18 +409,17 @@ uint32_t sd_card_read_reading_file(uint8_t *data_buffer, uint32_t buffer_length)
    return (f_read(&_file_for_reading, data_buffer, buffer_length, &bytes_read) == FR_OK) ? (uint32_t)bytes_read : 0;
 }
 
-void sd_card_log_ranges(const uint8_t *data, uint16_t length, ranging_rssi_t rssi)
+void sd_card_log_ranges(const uint8_t *data, uint16_t length)
 {
    // Jump over interrupt reason and determine data length
    uint16_t offset_data = 1 + SQUAREPOINT_EUI_LEN, offset_buf = 0;
    uint8_t num_ranges = data[0];
 
-   // Doesn't apply since RSSIs are logged
-   // if (((length - offset_data - 4) / APP_LOG_RANGE_LENGTH) != num_ranges)
-   // {
-   //    log_printf("WARNING: Attempting to log an incorrect number of ranges!\n");
-   //    return;
-   // }
+   if (((length - offset_data - 4) / APP_LOG_RANGE_LENGTH) != num_ranges)
+   {
+      log_printf("WARNING: Attempting to log an incorrect number of ranges!\n");
+      return;
+   }
 
    // Get timestamp of ranges
    uint32_t current_timestamp = 0, range = 0;

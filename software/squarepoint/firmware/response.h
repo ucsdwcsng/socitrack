@@ -15,7 +15,7 @@
 
 typedef struct __attribute__ ((__packed__))
 {
-   float rssis[PROTOCOL_MAX_NUM_RESPONDERS + PROTOCOL_MAX_NUM_HYBRIDS][NUM_RANGING_BROADCASTS];
+   float rssis[4][NUM_RANGING_BROADCASTS];
 } ranging_rssi_t;
 
 typedef struct __attribute__ ((__packed__))

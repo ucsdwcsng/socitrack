@@ -1,14 +1,16 @@
-import os, subprocess
+import os, time, subprocess, signal
 
 # Data Naming Scheme:
 #   1st and 2nd word tells orientation
 #   3rd word tells gain
-data_folder = "data_collection/"
+data_folder = "quick_testing/test1/"
 uwb_folder = "~/Research/wcsng-socitrack/software"
-vr_folder = "~/Research/uloc/data_collection_template/host/vr"
+vr_folder = "~/Research/uloc/data_collection_template/host/vr/data"
+uwb_folder = os.path.expanduser(uwb_folder)
+vr_folder = os.path.expanduser(vr_folder)
 
-# terminal_handler = "gnome-terminal"
-terminal_handler = "terminator"
+terminal_handler = "gnome-terminal"
+# terminal_handler = "terminator"
 
 term1_cmd = ""
 term2_cmd = ""
@@ -24,18 +26,27 @@ term1_cmd = "; ".join(term1_cmd_list)
 term2_cmd_list = [
     "python3 ~/Research/wcsng-socitrack/software/analysis/tottagRealtimeRangingRSSI.py"
 ]
+term2_cmd = "; ".join(term2_cmd_list)
+
 processes = []
-try:
-    # Run commands in separate terminals
-    p1 = subprocess.Popen([terminal_handler, '-e', 'bash -c "{term1_cmd}; sleep 5"'])
-    p2 = subprocess.Popen([terminal_handler, '-e', 'bash -c "{term2_cmd}; sleep 5"'])
-    processes = [p1, p2]
-except KeyboardInterrupt:
-    # Give processes KeyboardInterrupt
-    for p in processes:
-        p.send_signal(subprocess.signal.SIGINT)
-    for p in processes:
-        p.join()
+# Run commands in separate terminals
+p1 = subprocess.Popen([terminal_handler, '--wait','-e', "bash -c \"{}\"".format(term1_cmd)])
+p2 = subprocess.Popen([terminal_handler, '--wait','-e', "bash -c \"{}\"".format(term2_cmd)])
+processes = [p1, p2]
+print(p1.pid)
+print(p2.pid)
+for p in processes:
+    try:
+        p.wait()
+    except KeyboardInterrupt:
+        # Give processes KeyboardInterrupt
+        for p in processes:
+            p.send_signal(signal.SIGINT)
+            time.sleep(1)
+            os.killpg(p.pid, signal.SIGINT)
+        for p in processes:
+            p.wait()
+        pass
 
 # After data collection, data is located in different areas; move to specified folder
 if not os.path.exists(data_folder):
@@ -49,9 +60,13 @@ if not os.path.exists(data_folder):
 
 # Find latest VR data file
 vr_files = os.listdir(vr_folder)
-latest_vr_file = max(vr_files, key=os.path.getctime)
-latest_vr_file_path = os.path.join(vr_folder, latest_vr_file)
-latest_vr_file_dest = os.path.join(data_folder, "vr", latest_vr_file)
+vr_file_paths = [os.path.join(vr_folder, file) for file in vr_files]
+latest_vr_file = max(vr_file_paths, key=os.path.getctime)
+
+vr_file_index = vr_file_paths.index(latest_vr_file)
+
+latest_vr_file_path = latest_vr_file
+latest_vr_file_dest = os.path.join(data_folder, "vr", vr_files[vr_file_index])
 
 # Move latest VR data file to specified folder
 os.system("mv {} {}".format(latest_vr_file_path, latest_vr_file_dest))

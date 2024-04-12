@@ -281,11 +281,11 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
          _range_buffer[0] = (char) 14;
 
          // Make new buffer for RSSI specifically
-         _rssi_buffer_length = (uint16_t)MIN(len - 1, APP_BLE_MAX_BUFFER_LENGTH);
+         _rssi_buffer_length = (uint16_t)MIN(2 * sizeof(float) + 1, APP_BLE_MAX_BUFFER_LENGTH);
          // for ( int i = 0; i < num_ranges; i++ ) {
          //    memcpy(_rssi_buffer + 1 + i * sizeof(float), &rssi.rssis[i][0], sizeof(float)); // Transmit 1 float per device
          // }
-         memcpy(_rssi_buffer + 1, &rssi.rssis, sizeof(float)); // Transmit 1 float
+         memcpy(_rssi_buffer + 1, &rssi.rssis, 2 * sizeof(float)); // Transmit 2 floats
          _rssi_buffer[0] = (char) 15;
 
          // Update the application epoch
@@ -309,7 +309,7 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
          else
          {
             // Store the received ranges to the SD card
-            sd_card_log_ranges(_range_buffer, _range_buffer_length, rssi);
+            sd_card_log_ranges(_range_buffer+1, _range_buffer_length - 1);
             ble_update_ranging_data(_range_buffer, _range_buffer_length);
             ble_update_ranging_data(_rssi_buffer, _rssi_buffer_length);
          }

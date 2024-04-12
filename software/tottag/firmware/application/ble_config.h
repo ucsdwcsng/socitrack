@@ -13,7 +13,7 @@
 
 typedef struct __attribute__ ((__packed__))
 {
-   float rssis[20][30];
+   float rssis[4][30];
 } ranging_rssi_t;
 
 // User configurable debug definitions ---------------------------------------------------------------------------------
