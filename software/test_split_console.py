@@ -1,9 +1,25 @@
 import os, time, subprocess, signal
+from pynput.keyboard import Key, Controller, KeyCode
+
+keyboard = Controller()
 
 # Data Naming Scheme:
 #   1st and 2nd word tells orientation
 #   3rd word tells gain
-data_folder = "quick_testing/test1/"
+data_folder = "quick_testing/Forward/F_Ba_0dB/"
+data_folder = "quick_testing/Forward/L_Ba_0dB/"
+#data_folder = "quick_testing/Forward/R_Ba_0dB/"
+#data_folder = "quick_testing/Forward/Ba_Ba_0dB/"
+#data_folder = "quick_testing/Forward/T_Ba_0dB/"
+#data_folder = "quick_testing/Forward/T_Ba(R)_0dB/"
+#
+#data_folder = "quick_testing/Backward/Ba_F_0dB/"
+#data_folder = "quick_testing/Backward/Ba_L_0dB/"
+#data_folder = "quick_testing/Backward/Ba_R_0dB/"
+#data_folder = "quick_testing/Backward/Ba_Ba_0dB/"
+#data_folder = "quick_testing/Backward/Ba_T_0dB/"
+#data_folder = "quick_testing/Backward/Ba(R)_T_0dB/"
+
 uwb_folder = "~/Research/wcsng-socitrack/software"
 vr_folder = "~/Research/uloc/data_collection_template/host/vr/data"
 uwb_folder = os.path.expanduser(uwb_folder)
@@ -30,11 +46,18 @@ term2_cmd = "; ".join(term2_cmd_list)
 
 processes = []
 # Run commands in separate terminals
-p1 = subprocess.Popen([terminal_handler, '--wait','-e', "bash -c \"{}\"".format(term1_cmd)])
-p2 = subprocess.Popen([terminal_handler, '--wait','-e', "bash -c \"{}\"".format(term2_cmd)])
+p1 = subprocess.Popen([terminal_handler, '--profile=Big', '--wait','-e', "bash -c \"{}\"".format(term1_cmd)])
+p2 = subprocess.Popen([terminal_handler, '--profile=Big', '--wait','-e', "bash -c \"{}\"".format(term2_cmd)])
 processes = [p1, p2]
 print(p1.pid)
 print(p2.pid)
+
+time.sleep(1)
+keyboard.press(Key.cmd); keyboard.press(Key.left);keyboard.release(Key.cmd); keyboard.release(Key.left);
+time.sleep(0.5)
+keyboard.press(Key.alt); keyboard.press(Key.tab);keyboard.release(Key.alt); keyboard.release(Key.tab);
+time.sleep(0.5)
+keyboard.press(Key.cmd); keyboard.press(Key.right);keyboard.release(Key.cmd); keyboard.release(Key.right);
 for p in processes:
     try:
         p.wait()

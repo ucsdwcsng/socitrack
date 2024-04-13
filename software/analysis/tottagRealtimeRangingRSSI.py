@@ -59,6 +59,7 @@ def data_received_callback(data_file, addr, sender_characteristic, data):
       # Write to file, truncate to 4 decimal places
       data_file.write('\t{}'.format(round(rssi_struct[i], 4)))
     data_file.write('\n')
+    data_file.flush()
   else:
     print('ERROR: Invalid data packet identifier: {}'.format(identifier))
 
