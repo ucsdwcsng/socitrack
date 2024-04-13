@@ -6,19 +6,16 @@ keyboard = Controller()
 # Data Naming Scheme:
 #   1st and 2nd word tells orientation
 #   3rd word tells gain
-data_folder = "quick_testing/Forward/F_Ba_0dB/"
-data_folder = "quick_testing/Forward/L_Ba_0dB/"
-#data_folder = "quick_testing/Forward/R_Ba_0dB/"
-#data_folder = "quick_testing/Forward/Ba_Ba_0dB/"
-#data_folder = "quick_testing/Forward/T_Ba_0dB/"
-#data_folder = "quick_testing/Forward/T_Ba(R)_0dB/"
-#
-#data_folder = "quick_testing/Backward/Ba_F_0dB/"
-#data_folder = "quick_testing/Backward/Ba_L_0dB/"
-#data_folder = "quick_testing/Backward/Ba_R_0dB/"
-#data_folder = "quick_testing/Backward/Ba_Ba_0dB/"
-#data_folder = "quick_testing/Backward/Ba_T_0dB/"
-#data_folder = "quick_testing/Backward/Ba(R)_T_0dB/"
+base_folder = "quick_testing/Forward/"
+
+data_folders = [
+    "F_Ba_0dB/",
+    "L_Ba_0dB/",
+    "R_Ba_0dB/",
+    "Ba_Ba_0dB/",
+    "T_Ba_0dB/",
+    "T_T_0dB/"
+]
 
 uwb_folder = "~/Research/wcsng-socitrack/software"
 vr_folder = "~/Research/uloc/data_collection_template/host/vr/data"
@@ -44,62 +41,60 @@ term2_cmd_list = [
 ]
 term2_cmd = "; ".join(term2_cmd_list)
 
-processes = []
-# Run commands in separate terminals
-p1 = subprocess.Popen([terminal_handler, '--profile=Big', '--wait','-e', "bash -c \"{}\"".format(term1_cmd)])
-p2 = subprocess.Popen([terminal_handler, '--profile=Big', '--wait','-e', "bash -c \"{}\"".format(term2_cmd)])
-processes = [p1, p2]
-print(p1.pid)
-print(p2.pid)
+for test in data_folders:
+    processes = []
+    data_folder = os.path.join(base_folder, test)
+    print("Testing: {}".format(data_folder))
+    time.sleep(5)
 
-time.sleep(1)
-keyboard.press(Key.cmd); keyboard.press(Key.left);keyboard.release(Key.cmd); keyboard.release(Key.left);
-time.sleep(0.5)
-keyboard.press(Key.alt); keyboard.press(Key.tab);keyboard.release(Key.alt); keyboard.release(Key.tab);
-time.sleep(0.5)
-keyboard.press(Key.cmd); keyboard.press(Key.right);keyboard.release(Key.cmd); keyboard.release(Key.right);
-for p in processes:
-    try:
-        p.wait()
-    except KeyboardInterrupt:
-        # Give processes KeyboardInterrupt
-        for p in processes:
-            p.send_signal(signal.SIGINT)
-            time.sleep(1)
-            os.killpg(p.pid, signal.SIGINT)
-        for p in processes:
-            p.wait()
-        pass
+    # Run commands in separate terminals
+    p1 = subprocess.Popen([terminal_handler, '--profile=Big', '--wait','-e', "bash -c \"{}\"".format(term1_cmd)])
+    p2 = subprocess.Popen([terminal_handler, '--profile=Big', '--wait','-e', "bash -c \"{}\"".format(term2_cmd)])
+    processes = [p1, p2]
+    print(p1.pid)
+    print(p2.pid)
 
-# After data collection, data is located in different areas; move to specified folder
-if not os.path.exists(data_folder):
-    vr_path = os.path.join(data_folder, "vr")
-    uwb_path = os.path.join(data_folder, "uwb")
-    os.makedirs(data_folder)
-    os.makedirs(vr_path)
-    os.makedirs(uwb_path)
+    time.sleep(1)
+    keyboard.press(Key.cmd); keyboard.press(Key.left);keyboard.release(Key.cmd); keyboard.release(Key.left);
+    time.sleep(0.5)
+    keyboard.press(Key.alt); keyboard.press(Key.tab);keyboard.release(Key.alt); keyboard.release(Key.tab);
+    time.sleep(0.5)
+    keyboard.press(Key.cmd); keyboard.press(Key.right);keyboard.release(Key.cmd); keyboard.release(Key.right);
 
-# Move VR data to specified folder
+    # Wait for data collection to finish (limited to 95 seconds)
+    time.sleep(95)
+    keyboard.press(Key.ctrl); keyboard.press('c');keyboard.release(Key.ctrl); keyboard.release('c');
+    keyboard.press(Key.ctrl); keyboard.press('c');keyboard.release(Key.ctrl); keyboard.release('c');
 
-# Find latest VR data file
-vr_files = os.listdir(vr_folder)
-vr_file_paths = [os.path.join(vr_folder, file) for file in vr_files]
-latest_vr_file = max(vr_file_paths, key=os.path.getctime)
+    # After data collection, data is located in different areas; move to specified folder
+    if not os.path.exists(data_folder):
+        vr_path = os.path.join(data_folder, "vr")
+        uwb_path = os.path.join(data_folder, "uwb")
+        os.makedirs(data_folder)
+        os.makedirs(vr_path)
+        os.makedirs(uwb_path)
 
-vr_file_index = vr_file_paths.index(latest_vr_file)
+    # Move VR data to specified folder
 
-latest_vr_file_path = latest_vr_file
-latest_vr_file_dest = os.path.join(data_folder, "vr", vr_files[vr_file_index])
+    # Find latest VR data file
+    vr_files = os.listdir(vr_folder)
+    vr_file_paths = [os.path.join(vr_folder, file) for file in vr_files]
+    latest_vr_file = max(vr_file_paths, key=os.path.getctime)
 
-# Move latest VR data file to specified folder
-os.system("mv {} {}".format(latest_vr_file_path, latest_vr_file_dest))
+    vr_file_index = vr_file_paths.index(latest_vr_file)
 
-# Move UWB data to specified folder
-uwb_files = os.listdir(".")
+    latest_vr_file_path = latest_vr_file
+    latest_vr_file_dest = os.path.join(data_folder, "vr", vr_files[vr_file_index])
 
-# Find files that start with "ranging"
-ranging_files = [f for f in uwb_files if f.startswith("ranging")]
+    # Move latest VR data file to specified folder
+    os.system("mv {} {}".format(latest_vr_file_path, latest_vr_file_dest))
 
-# Move ranging files to specified folder
-for f in ranging_files:
-    os.system("mv {} {}".format(f, os.path.join(data_folder, "uwb", f)))
+    # Move UWB data to specified folder
+    uwb_files = os.listdir(".")
+
+    # Find files that start with "ranging"
+    ranging_files = [f for f in uwb_files if f.startswith("ranging")]
+
+    # Move ranging files to specified folder
+    for f in ranging_files:
+        os.system("mv {} {}".format(f, os.path.join(data_folder, "uwb", f)))
