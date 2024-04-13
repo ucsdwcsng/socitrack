@@ -41,7 +41,15 @@ term2_cmd_list = [
 ]
 term2_cmd = "; ".join(term2_cmd_list)
 
-for test in data_folders:
+def countdown(val):
+    temp = val
+    while temp >= 0:
+        print(temp, end=(', ' if temp > 0 else ''), flush=True)
+        time.sleep(1)
+        temp -= 1
+    print('\n\n\n\n')
+
+for index,test in enumerate(data_folders):
     processes = []
     data_folder = os.path.join(base_folder, test)
     print("Testing: {}".format(data_folder))
@@ -62,8 +70,9 @@ for test in data_folders:
     keyboard.press(Key.cmd); keyboard.press(Key.right);keyboard.release(Key.cmd); keyboard.release(Key.right);
 
     # Wait for data collection to finish (limited to 95 seconds)
-    time.sleep(95)
+    time.sleep(105)
     keyboard.press(Key.ctrl); keyboard.press('c');keyboard.release(Key.ctrl); keyboard.release('c');
+    time.sleep(0.5)
     keyboard.press(Key.ctrl); keyboard.press('c');keyboard.release(Key.ctrl); keyboard.release('c');
 
     # After data collection, data is located in different areas; move to specified folder
@@ -98,3 +107,9 @@ for test in data_folders:
     # Move ranging files to specified folder
     for f in ranging_files:
         os.system("mv {} {}".format(f, os.path.join(data_folder, "uwb", f)))
+    print("\n\n\n\nWait time to reset tags for bluetooth")
+    if index + 2 < len(data_folders):
+        print(f'Next Test: {data_folders[index+1]}')
+    else:
+        print(f'Last Test: {data_folders[index+1]}')
+    countdown(50)
