@@ -1090,22 +1090,22 @@ static void perform_scheduled_slot_task(void)
          memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE, scratch_ranges + 1, scratch_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH));
          memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)), &_schedule_packet.epoch_time_unix, sizeof(_schedule_packet.epoch_time_unix));
 
-         // Get rssi struct
-         ranging_rssi_t* _rssi = get_rssis();
+         // // Get rssi struct
+         // ranging_rssi_t* _rssi = get_rssis();
 
-         // Add rssis at end
-         if (ids_and_ranges[0] > 0) {
-            // debug_msg("RSSI sent: ");
-            for (int i = 0; i < scratch_ranges[0]; i++) {
-               float * rssi_list = _rssi->rssis[i];
-               // for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
-               //    debug_msg_float(_rssi->rssis[i][j]);
-               //    debug_msg(", ");
-               // }
-               memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)), rssi_list, sizeof(ranging_rssi_t));
-            }
-            // debug_msg("\n");
-         }
+         // // Add rssis at end
+         // if (ids_and_ranges[0] > 0) {
+         //    // debug_msg("RSSI sent: ");
+         //    for (int i = 0; i < scratch_ranges[0]; i++) {
+         //       float * rssi_list = _rssi->rssis[i];
+         //       // for (int j = 0; j < NUM_RANGING_BROADCASTS; j++) {
+         //       //    debug_msg_float(_rssi->rssis[i][j]);
+         //       //    debug_msg(", ");
+         //       // }
+         //       memcpy(ids_and_ranges + 1 + PROTOCOL_EUI_SIZE + (ids_and_ranges[0] * (PACKET_SINGLE_RESULT_LENGTH)) + sizeof(_schedule_packet.epoch_time_unix) + (i * NUM_RANGING_BROADCASTS * sizeof(float)), rssi_list, sizeof(ranging_rssi_t));
+         //    }
+         //    // debug_msg("\n");
+         // }
          
          // // Debug rssis within ids_and_ranges
          // debug_msg("RSSI in var: ");

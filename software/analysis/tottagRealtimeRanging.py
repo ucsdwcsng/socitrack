@@ -36,9 +36,10 @@ def data_received_callback(data_file, sender_characteristic, data):
   for i in range(num_ranges):
     to_eui, range_mm = struct.unpack('<BI', data[(2+i*5):(2+(i+1)*5)])
     print('\tDevice {} with millimeter range {}'.format(hex(to_eui)[2:], range_mm))
-    # Get OS timestamp in seconds
-    osTime = datetime.now().timestamp()
-    data_file.write('{}\t{}\t{}    {}    {}\n'.format(osTime, timestamp, hex(from_eui)[2:], hex(to_eui)[2:], range_mm))
+    # Get OS timestamp with 2 decimal places
+    osTime = float(format(datetime.now().timestamp(), '.2f'))
+    data_file.write('{}\t{}\t{}\t{}\t{}\n'.format(osTime, timestamp, hex(from_eui)[2:], hex(to_eui)[2:], range_mm))
+    data_file.flush()
 
 
 # MAIN RANGE LOGGING FUNCTION -----------------------------------------------------------------------------------------

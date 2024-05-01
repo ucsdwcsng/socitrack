@@ -256,8 +256,8 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
          nrfx_atomic_flag_set(&_app_flags.squarepoint_running);
          uint32_t range = 0, epoch = 0;
          
-         ranging_rssi_t rssi;
-         memcpy(&rssi, data + packet_overhead + (num_ranges * APP_LOG_RANGE_LENGTH) + sizeof(epoch), sizeof(rssi));
+         // ranging_rssi_t rssi;
+         // memcpy(&rssi, data + packet_overhead + (num_ranges * APP_LOG_RANGE_LENGTH) + sizeof(epoch), sizeof(rssi));
 
          // Output the received ranging data
          for (uint8_t i = 0; i < num_ranges; ++i)
@@ -285,8 +285,8 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
          // for ( int i = 0; i < num_ranges; i++ ) {
          //    memcpy(_rssi_buffer + 1 + i * sizeof(float), &rssi.rssis[i][0], sizeof(float)); // Transmit 1 float per device
          // }
-         memcpy(_rssi_buffer + 1, &rssi.rssis, 2 * sizeof(float)); // Transmit 2 floats
-         _rssi_buffer[0] = (char) 15;
+         // memcpy(_rssi_buffer + 1, &rssi.rssis, 2 * sizeof(float)); // Transmit 2 floats
+         // _rssi_buffer[0] = (char) 15;
 
          // Update the application epoch
          memcpy(&epoch, data + packet_overhead + (num_ranges * APP_LOG_RANGE_LENGTH), sizeof(epoch));
@@ -311,7 +311,7 @@ static uint32_t squarepoint_data_handler(uint8_t *data, uint32_t len, uint32_t t
             // Store the received ranges to the SD card
             sd_card_log_ranges(_range_buffer+1, _range_buffer_length - 1);
             ble_update_ranging_data(_range_buffer, _range_buffer_length);
-            ble_update_ranging_data(_rssi_buffer, _rssi_buffer_length);
+            // ble_update_ranging_data(_rssi_buffer, _rssi_buffer_length);
          }
 
          // Reset the SquarePoint communications timeout counter
